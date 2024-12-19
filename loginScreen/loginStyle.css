@@ -1,0 +1,163 @@
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Header styles */
+header {
+    background-color: #fff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    width: 100%; /* Full width */
+    display: flex;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    position: fixed; /* Fix the header at the top */
+    top: 0;
+    left: 0;
+    z-index: 10; /* Keeps the header above the content */
+}
+
+/* Container for all header content */
+.header-container {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end; /* Align content to the right */
+    align-items: center;
+}
+
+
+
+/* Right-side content */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Spacing between elements */
+}
+
+/* Login button styles */
+.header-right .login-btn {
+    outline: none;
+    border: 1px solid #000;
+    background-color: #fff;
+    padding: 7px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Signup button styles */
+.header-right .signup-btn {
+    background-color: #000;
+    color: #fff;
+    outline: none;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1E1E1E;
+    display: flex;
+    flex-direction: column; /* Keeps header at the top */
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 70px; /* Give space for the fixed header */
+}
+
+/* Wrapper styles */
+.wrapper {
+    background-color: #fff;
+    border-radius: 10px;
+    width: 420px;
+    margin-top: auto; /* Pushes the login form downward */
+    margin-bottom: auto; /* Centers it vertically */
+    padding: 20px 0; /* Add some padding for spacing */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+}
+
+.wrapper h1 {
+    margin-top: 10px;
+    font-size: 30px;
+    text-align: center;
+}
+
+.wrapper .input-box {
+    width: 90%;
+    height: 50px;
+    margin: 30px 0;
+    margin-left: 20px;
+}
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border-radius: 15px ;
+    padding: 20px 45px 20px 20px;
+    border: 1px solid rgb(85, 85, 85);
+}
+
+.input-box input::placeholder {
+    color: black;
+}
+
+.wrapper .rememberMe {
+    display: flex;
+    font-size: 14px;
+    justify-content: space-between;
+    margin: -15px 10px 15px;
+}
+
+.rememberMe label input {
+    margin-right: 3px;
+}
+
+.rememberMe a {
+    color: #000;
+    text-decoration: none;
+}
+
+.rememberMe a:hover {
+    text-decoration: underline;
+}
+
+.wrapper #loginBtn {
+    width: 100%;
+    height: 45px;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wrapper #loginBtn:hover {
+    background: #a1a1a1;
+}
+
+.wrapper .register-link {
+    font-size: 14.5px;
+    margin: 20px 0 15px;
+    text-align: center;
+}
+
+.register-link p a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link p a:hover {
+    text-decoration: underline;
+}
