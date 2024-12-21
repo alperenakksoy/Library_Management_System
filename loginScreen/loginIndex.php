@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Register</title>
-    <link rel="stylesheet"  href="loginStyle.css">
-
+    <link rel="stylesheet" href="loginStyle.css">
 </head>
 <body>
   
@@ -18,30 +17,29 @@
         </div>
     </header>
     
-<div class="wrapper">
-    <form action="">
-        <h1>Login</h1>
+    <div class="wrapper">
+        <form action="loginProcess.php" method="POST">
+            <h1>Login</h1>
             <div class="input-box">
-                <input type="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" required>
             </div>
             <div class="input-box">
-                <input type="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password" required>
             </div>
             <div class="rememberMe">
                 <label><input type="checkbox">Remember me</label>
-               <a href="#">Forgot password?</a>
+                <a href="#">Forgot password?</a>
             </div>
 
             <button type="submit" id="loginBtn">Login</button>
 
             <div class="register-link">
-                <p>Dont you have an account? <a href="registerScreen\registerIndex.html"> Register</a></p>
+                <p>Don't you have an account? <a href="../registerScreen/registerIndex.html">Register</a></p>
             </div>
-    </form>
+        </form>
+    </div>
 
-
-</div>
-
-<script src="loginApp.js"></script>
+    <script src="loginApp.js"></script>
 </body>
 </html>
+
