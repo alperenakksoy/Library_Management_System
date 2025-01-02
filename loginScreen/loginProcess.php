@@ -1,8 +1,9 @@
 <?php
-session_start(); // Start session to store session variables
-
 // Include the database connection file
 include('../registerScreen/dbconnection.php');
+
+// Start the session at the beginning of the page
+session_start();
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -24,11 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Directly compare plain text password
         if ($password === $user['pwd']) {
             // Password is correct, set session variables
-            $_SESSION['user_id'] = $user['userid']; // Assuming 'userid' is the user's ID in the database
-            $_SESSION['user_name'] = $user['first_name']; // Store user's first name
+            $_SESSION['userid'] = $user['userid']; // Store the user ID in the session
+            $_SESSION['user_name'] = $user['first_name']; // Store user's first name in the session
 
             // Redirect to the main page after login
-            header('Location: ../mainScreen/mainIndex.html');
+            header('Location: ../mainScreen/mainIndex.php');  // Change .html to .php
             exit;
         } else {
             // If password is incorrect
@@ -40,3 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
+<!-- Your login form below -->
+<form method="POST">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+</form>
