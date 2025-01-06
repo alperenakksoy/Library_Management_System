@@ -106,26 +106,30 @@ if ($result->num_rows > 0) {
 
         // Function to handle book borrowing
     
-function borrowBook(title, bookId) {
+        function borrowBook(title, bookId) {
     if (confirm(`Do you want to borrow "${title}"?`)) {
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+
         fetch('borrowBook.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `book_id=${bookId}`
+            body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             alert(data.message);
             if (data.success) {
-                // Reload the books to update the display
                 location.reload();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while borrowing the book');
+            alert('An error occurred while borrowing the book. Please try again.');
         });
     }
 }

@@ -14,8 +14,8 @@ session_start();  // Start the session
     <header>
         <div class="header-container">
             <div class="header-right">
-                <button class="login-btn">Log in</button>
-                <button class="signup-btn">Sign Up</button>
+            <a href="../loginScreen/loginIndex.php"> <button class="login-btn">Log in</button> </a>
+            <a href="../registerScreen/registerIndex.html"> <button class="signup-btn">Sign Up</button> </a>
             </div>
         </div>
     </header>

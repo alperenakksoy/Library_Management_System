@@ -1,14 +1,11 @@
 <?php
-session_start();  // Start the session
+session_start();
 
-// Check if the user is logged in
 if (!isset($_SESSION['userid'])) {
-    // User not logged in, redirect to login page
     header('Location: ../loginScreen/loginIndex.php');
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,52 +15,91 @@ if (!isset($_SESSION['userid'])) {
     <link rel="stylesheet" href="mainStyle.css">
 </head>
 <body>
-    
     <div class="container">
-        <!-- Header -->
         <header class="main-header">
             <div class="logo">
                 <h1>Library System</h1>
             </div>
             <nav>
                 <ul>
-                    <li><a href="../mainScreen/books.php">Books</a></li>
-                    <li><a href="../mainScreen/logout.php">Logout</a></li>
+                    <li><a href="books.php">Books</a></li>
+                    <li><a href="logout.php">Logout</a></li>
                 </ul>
             </nav>
         </header>
 
-        <!-- Main Content -->
         <main>
-            <h2>Books You Borrowed</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Borrow Date</th>
-                        <th>Return Date</th>
-                    </tr>
-                </thead>
-                <tbody id="borrowedBooksContainer">
-                    <!-- Borrowed books will be dynamically inserted here -->
-                </tbody>
-            </table>
+            <h2>Your Borrowed Books</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Borrow Date</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="borrowedBooksContainer">
+                        <tr>
+                            <td colspan="5" class="loading-message">Loading borrowed books...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
     </div>
 
-
-    <script src="mainApp.js">
-        session_start();  // Start the session
-        $(document).ready(function() {
-            // Initialize Select2 for all select elements
-            $('select').select2({
-                placeholder: "Select an option",
-                allowClear: true
-            });
+    <script>
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
+    }
+
+    function displayBorrowedBooks() {
+        const container = document.getElementById('borrowedBooksContainer');
+        
+        fetch('getBorrowedBooks.php')
+            .then(response => response.json())
+            .then(books => {
+                if (books.length === 0) {
+                    container.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="no-books-message">
+                                You haven't borrowed any books yet.
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                container.innerHTML = books.map(book => `
+                    <tr>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>${formatDate(book.borrow_date)}</td>
+                        <td>${book.return_date === 'Not returned' ? 'Not returned' : formatDate(book.return_date)}</td>
+                        <td>${book.status}</td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error fetching borrowed books:', error);
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="error-message">
+                            Error loading borrowed books. Please try again later.
+                        </td>
+                    </tr>`;
+            });
+    }
+
+    // Load borrowed books when the page loads
+    document.addEventListener('DOMContentLoaded', displayBorrowedBooks);
     </script>
 </body>
-
 </html>

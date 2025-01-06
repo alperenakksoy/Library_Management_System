@@ -2,94 +2,77 @@
 session_start();
 include '../registerScreen/dbconnection.php';
 
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 header('Content-Type: application/json');
-$response = ['success' => false, 'message' => ''];
 
+// Check if user is logged in
 if (!isset($_SESSION['userid'])) {
-    $response['message'] = 'User not logged in';
-    echo json_encode($response);
+    echo json_encode(['success' => false, 'message' => 'Please log in to borrow books']);
     exit;
 }
 
-if (!isset($_POST['book_id'])) {
-    $response['message'] = 'Book ID not provided';
-    echo json_encode($response);
-    exit;
-}
-
-try {
-    $book_id = (int)$_POST['book_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['userid'];
-    $borrow_date = date('Y-m-d');
+    $book_id = isset($_POST['book_id']) ? intval($_POST['book_id']) : 0;
+
+    if ($book_id === 0) {
+        echo json_encode(['success' => false, 'message' => 'Invalid book ID']);
+        exit;
+    }
 
     // Start transaction
     $conn->begin_transaction();
 
-    // Check if user has already borrowed this book
-    $check_sql = "SELECT id FROM borrow_records WHERE borrow_bookID = ? AND borrow_userid = ? AND status = 'borrowed'";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param('ii', $book_id, $user_id);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if ($check_result->num_rows > 0) {
-        throw new Exception("You have already borrowed this book");
+    try {
+        // Check if book is available and has copies
+        $check_book = "SELECT copies FROM books WHERE bookid = ? AND copies > 0";
+        $stmt = $conn->prepare($check_book);
+        $stmt->bind_param("i", $book_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+            throw new Exception('Book is not available for borrowing');
+        }
+
+        // Update book copies
+        $update_book = "UPDATE books SET copies = copies - 1 WHERE bookid = ? AND copies > 0";
+        $stmt = $conn->prepare($update_book);
+        $stmt->bind_param("i", $book_id);
+        $stmt->execute();
+
+        if ($stmt->affected_rows === 0) {
+            throw new Exception('Failed to update book availability');
+        }
+
+        // Calculate borrow and return dates
+        $borrow_date = date('Y-m-d');
+        $return_date = date('Y-m-d', strtotime('+30 days')); // Add 30 days to current date
+
+        // Create borrow record with return date
+        $insert_borrow = "INSERT INTO borrow_records (borrow_bookID, borrow_userid, borrow_date, return_date, status) 
+                         VALUES (?, ?, ?, ?, 'borrowed')";
+        $stmt = $conn->prepare($insert_borrow);
+        $stmt->bind_param("iiss", $book_id, $user_id, $borrow_date, $return_date);
+        $stmt->execute();
+
+        if ($stmt->affected_rows === 0) {
+            throw new Exception('Failed to create borrow record');
+        }
+
+        // If everything is successful, commit the transaction
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Book borrowed successfully. Please return by ' . date('F j, Y', strtotime($return_date))]);
+
+    } catch (Exception $e) {
+        // If there's an error, rollback the transaction
+        $conn->rollback();
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 
-    // Check book availability
-    $sql = "SELECT copies FROM books WHERE bookid = ? FOR UPDATE";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows === 0) {
-        throw new Exception("Book not found");
-    }
-    
-    $book = $result->fetch_assoc();
-    if ($book['copies'] <= 0) {
-        throw new Exception("No copies available");
-    }
-
-    // Insert borrow record
-    $sql = "INSERT INTO borrow_records (borrow_bookID, borrow_userid, borrow_date) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('iis', $book_id, $user_id, $borrow_date);
-    
-    if (!$stmt->execute()) {
-        throw new Exception("Failed to create borrow record: " . $stmt->error);
-    }
-
-    // Update book copies
-    $sql = "UPDATE books SET copies = copies - 1 WHERE bookid = ? AND copies > 0";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $book_id);
-    
-    if (!$stmt->execute() || $stmt->affected_rows === 0) {
-        throw new Exception("Failed to update book copies");
-    }
-
-    // Commit transaction
-    $conn->commit();
-    
-    $response['success'] = true;
-    $response['message'] = "Book borrowed successfully!";
-
-} catch (Exception $e) {
-    // Rollback transaction on error
-    $conn->rollback();
-    $response['message'] = $e->getMessage();
-} finally {
-    if (isset($stmt)) {
-        $stmt->close();
-    }
-    $conn->close();
-    echo json_encode($response);
+    $stmt->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
+
+$conn->close();
 ?>
